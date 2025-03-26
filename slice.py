@@ -125,10 +125,7 @@ def tr(x, y, z, a1, a2, a3):
     a2 = np.radians(a2)
     a3 = np.radians(a3)
     T = np.array([[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [-x, -y, -z, 1]])
-    R1 = np.array([[1, 0, 0, 0], 
-                   [0, np.cos(a1), -np.sin(a1), 0], 
-                   [0, np.sin(a1), np.cos(a1), 0], 
-                   [0, 0, 0, 1]])
+    R1 = np.array([[1, 0, 0, 0], [0, np.cos(a1), -np.sin(a1), 0], [0, np.sin(a1), np.cos(a1), 0], [0, 0, 0, 1]])
     R2 = np.array([[np.cos(a2), 0, np.sin(a2), 0], [0, 1, 0, 0], [-np.sin(a2), 0, np.cos(a2), 0], [0, 0, 0, 1]])
     R3 = np.array([[np.cos(a3), -np.sin(a3), 0, 0], [np.sin(a3), np.cos(a3), 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]])
     R = np.dot(T, R3)
@@ -161,7 +158,7 @@ def load_point_cloud(file_path):
         parameters: file_path - full file name with path
         returns point cloud data as a np array
     """
-    
+
     # check file exists
     if not Path(file_path).is_file():
         print("input file does not exist")
@@ -170,6 +167,26 @@ def load_point_cloud(file_path):
     pc = np.loadtxt(file_path, delimiter=' ', usecols=(0,1,2))
     print(f"{pc.shape[0]} points read")
     return pc
+
+def plot_section(data, z, output_directory):
+    """ plot points in a cross section
+        parameters: 
+            data - point cloud as a np array
+            z - distance along the axis, printed in the title of the plot
+        returns point cloud data as a np array
+    """
+    figure, axes = plt.subplots()
+    plt.plot(data[:,0], data[:,1], 'o', markersize=2)
+    plt.grid(True)
+    axes.set_aspect(1)
+    #plt.xlim(-2, 2)
+    #plt.ylim(-2, 2)
+
+    plt.xlabel('<- Csepel    x (m)   Stadium->')
+    plt.ylabel('<- rotation axis   y (m)   pilon top->')
+    plt.title('section at ' + str(z) + ' m')
+    plt.savefig(output_directory + '/section_' + str(z) + '.png')
+    plt.close()
 
 if __name__ == "__main__":
 
@@ -211,15 +228,16 @@ if __name__ == "__main__":
     z_max = 65 # last section plane, 65.000
     x_limit = 2.0 # filter out points not on the pilon
 
-    #RANSAC parameters
+    # RANSAC parameters
     k = 100 # nr of iterations
     tol = 0.01 # tolerance
     isplot = True
 
-    #creat output directoryif not exists
-    Path(sys.argv[2]).mkdir(parents=True, exist_ok=True)
+    # create output directory if not exists
+    output_directory = sys.argv[2]
+    Path(output_directory).mkdir(parents=True, exist_ok=True)
 
-    #output file
+    # output file
     fout = open(sys.argv[2] + "/axis.txt", "w")
 
     ax = [0, 0, 0]
@@ -235,7 +253,7 @@ if __name__ == "__main__":
         sec = sec[abs(sec[:,1]) < x_limit]
 
         nsec = sec.shape[0]
-        #print("{:.3f} {:3d}".format(z0, nsec), end =" ")
+        plot_section(sec, z, output_directory)
 
         # execute ransac algorithm
         ransac = RANSAC(sec[:,0], sec[:,1], k, tol, isplot, z)

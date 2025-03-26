@@ -1,26 +1,8 @@
 import sys
 import numpy as np
-from numpy.linalg import inv
-import random
-import math
 import matplotlib.pyplot as plt
-import time
-from slice import circle_func, RANSAC, tr, inv_tr, load_point_cloud
+from slice import RANSAC, tr, load_point_cloud
 
-def plot_section(data, z):
-    figure, axes = plt.subplots()
-    plt.plot(data[:,0], data[:,1], 'o', markersize=2)
-    plt.grid(True)
-    axes.set_aspect(1)
-    #plt.xlim(-2, 2)
-    #plt.ylim(-2, 2)
-
-    plt.xlabel('<- Csepel    x (m)   Stadium->')
-    plt.ylabel('<- rotation axis   y (m)   pilon top->')
-    plt.title('section at ' + str(z) + ' m')
-    plt.savefig('section_' + str(z) + '.png')
-    plt.close()
-   
 if __name__ == "__main__":
 
     if len(sys.argv) < 2:
@@ -70,7 +52,7 @@ if __name__ == "__main__":
         #point in the section
         sec = pc1[abs(pc1[:,2] - z) < dz0]
 
-        # remove points far from origin 
+        # remove points far from origin
         sec = sec[abs(sec[:,0]) < x_limit]
         sec = sec[abs(sec[:,1]) < x_limit]
 
