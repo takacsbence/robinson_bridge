@@ -156,26 +156,42 @@ def inv_tr(x, y, z, a1, a2, a3):
     R = np.dot(R, T)
     return R
 
+def load_point_cloud(file_path):
+    """ load point cloud from text file
+        parameters: file_path - full file name with path
+        returns point cloud data as a np array
+    """
+    
+    # check file exists
+    if not Path(file_path).is_file():
+        print("input file does not exist")
+        exit()
+
+    pc = np.loadtxt(file_path, delimiter=' ', usecols=(0,1,2))
+    print(f"{pc.shape[0]} points read")
+    return pc
 
 if __name__ == "__main__":
+
+    # check number of command line arguments
     if len(sys.argv) < 3:
         print(f"usage: {sys.argv[0]} pcfile output_directory")
         sys.exit()
 
-    # load point cloud from text file as command line argument
-    pc = np.loadtxt(sys.argv[1], delimiter=' ', usecols=(0,1,2))
+    # load point cloud
+    file_path = sys.argv[1]
+    pc = load_point_cloud(file_path)
     n = pc.shape[0]
-    print(n)
 
-    # coordinates to shift
+    # transformation parameters
+    # shift
     dx = 651521.114
     dy = 235233.065
     dz = 103.132
-    # elevation angle
-    alfa1 = -9.0
-    # whole circle bearing of the pilon
-    alfa3 = -251.95206
+    # rotation angles
+    alfa1 = -9.0    # elevation angle
     alfa2 = 0
+    alfa3 = -251.95206 # whole circle bearing of the pilon
 
     # transformation matrix
     trm = tr(dx, dy, dz, alfa1, alfa2, alfa3)
